@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Swashbuckle.AspNetCore.Annotations;
 using TodoList.Models;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -44,9 +45,14 @@ namespace TodoList.Controllers
             return null;
         }
 
-        // POST api/<TodoTaskController>
+        [SwaggerOperation(
+            Summary = "Creates a task",
+            Description = "Add to a task to existing Todo list",
+            OperationId = "CreateTask",
+            Tags = new[] { "TodoTask", "WeatherForecast" }
+        )]
         [HttpPost]
-        public void Post([FromBody] TodoTask value)
+        public void Post([FromBody, SwaggerRequestBody("The Task payload shoul be like this", Required = true)] TodoTask value)
         {
             var list = _cache.Get<List<TodoTask>>("TodoTask");
             list.Add(value);
@@ -54,7 +60,26 @@ namespace TodoList.Controllers
 
         }
 
-        // PUT api/<TodoTaskController>/5
+
+        /// <summary>
+        /// Update Todo Item
+        /// </summary>
+        /// <param name="id">Id to be deleted</param>
+        /// <param name="value">Body with Todo Task</param>
+        /// <returns>A newly created Todo Item</returns>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     PUT /TodoTask/{id}
+        ///     {
+        ///         "todoTaskId": 1,
+        ///         "desc": "Comer",
+        ///         "status": "Done"
+        ///     }
+        ///
+        /// </remarks>
+        [SwaggerResponse(201, "The product was created", typeof(TodoTask))]
+        [SwaggerResponse(400, "The product data is invalid",typeof(ErrorWrapper))]
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] TodoTask value)
         {
@@ -67,7 +92,11 @@ namespace TodoList.Controllers
             }
         }
 
-        // DELETE api/<TodoTaskController>/5
+        /// <summary>
+        /// Deletes a specific Todo Item.
+        /// </summary>
+        /// <param name="id">Id to be deleted</param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
